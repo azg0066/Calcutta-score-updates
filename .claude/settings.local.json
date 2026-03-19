@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -l . C:/Users/abhig/OneDrive/Documents/Software Projects/Calcutta score updates/*.py)"
+    ]
+  }
+}
