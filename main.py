@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 import os
 
 
-'''URLs from henrygd that pulls JSON scoreboard for a given day and returns as a '''
+'''URLs from henrygd that pulls JSON scoreboard for a given day and returns as a JSON'''
 
 url1 = "http://ncaa-api.henrygd.me/scoreboard/basketball-men/d1/2026/03/19"
 url2 = "http://ncaa-api.henrygd.me/scoreboard/basketball-men/d1/2026/03/20"
