@@ -188,78 +188,41 @@ def main():
     update_player_wins(winner_list=winner_list)
     update_totals()
 
-    scoreboard = 'LATEST SCOREBOARD as of ' + datetime.datetime.now().strftime("%H:%M") + " EST\n" 
+    scoreboard = f'**🏀 SCOREBOARD** — {datetime.datetime.now().strftime("%H:%M")} EST\n'
+    scoreboard += '=' * 35 + '\n\n'
+
+    # Leaderboard summary
     for player in master_dictionary:
-        scoreboard += (player + " total: $" + str(round(master_dictionary[player]['total'],3)))
-        scoreboard += ("\n" + player + " Round 1 wins: \n" )
-        
-        rd1_wins = []
-        for game in master_dictionary[player]:
-            if game == 'total':
-                continue
-            else:
-                if (master_dictionary[player][game][0] == 1):
-                    rd1_wins.append(game)
-        scoreboard += str(rd1_wins) + "\n"
+        total = master_dictionary[player]['total']
+        scoreboard += f'**{player}**: ${total:.2f}\n'
 
-        if(date.today() >= RD2_START_DATE):
-            rd2_wins = []
-            for game in master_dictionary[player]:
-                if game == 'total':
-                    continue
-                else:
-                    if (master_dictionary[player][game][1] == 1):
-                        rd2_wins.append(game)
-            scoreboard += ("\n" + player + " Round 2 wins: " + "\n" + str(rd2_wins) + "\n") 
+    scoreboard += '\n' + '-' * 35 + '\n'
 
+    # Detailed wins per player
+    rounds = [
+        ('Round 1',      0, True),
+        ('Round 2',      1, date.today() >= RD2_START_DATE),
+        ('Sweet 16',     2, date.today() >= RD3_START_DATE),
+        ('Elite 8',      3, date.today() >= RD4_START_DATE),
+        ('Final 4',      4, date.today() >= RD5_START_DATE),
+        ('Championship', 5, date.today() >= RD6_START_DATE),
+    ]
 
-
-        if(date.today() >= RD3_START_DATE):
-            rd3_wins = []
-            for game in master_dictionary[player]:
-                if game == 'total':
-                    continue
-                else:
-                    if (master_dictionary[player][game][2] == 1):
-                        rd3_wins.append(game)
-            scoreboard += ("\n" + player + " Sweet Sixteen wins: " + "\n" + str(rd3_wins) + "\n\n")
-
-        if(date.today() >= RD4_START_DATE):
-            rd4_wins = []
-            for game in master_dictionary[player]:
-                if game == 'total':
-                    continue
-                else:
-                    if (master_dictionary[player][game][3] == 1):
-                        rd3_wins.append(game)
-            scoreboard += ("\n" + player + " Elite Eight wins: " + "\n" + str(rd4_wins) + "\n\n")
-
-
-        if(date.today() >= RD5_START_DATE):
-            rd5_wins = []
-            for game in master_dictionary[player]:
-                if game == 'total':
-                    continue
-                else:
-                    if (master_dictionary[player][game][4] == 1):
-                        rd3_wins.append(game)
-            scoreboard += ("\n" + player + " Final Four wins: " + "\n" + str(rd5_wins) + "\n\n")
-
-
-        if(date.today() >= RD6_START_DATE):
-            rd6_wins = []
-            for game in master_dictionary[player]:
-                if game == 'total':
-                    continue
-                else:
-                    if (master_dictionary[player][game][5] == 1):
-                        rd3_wins.append(game)
-            scoreboard += ("\n" + player + " Final Four wins: " + "\n" + str(rd6_wins) + "\n\n")
+    for player in master_dictionary:
+        scoreboard += f'\n**{player}**\n'
+        for round_name, idx, active in rounds:
+            if not active:
+                break
+            wins = [g for g in master_dictionary[player]
+                    if g != 'total' and master_dictionary[player][g][idx] == 1]
+            if wins:
+                scoreboard += f'> {round_name}: {", ".join(wins)}\n'
+        scoreboard += '\n'
 
     msg = {'content': scoreboard}
     print(scoreboard)
     
-    #print(requests.post(discord_url, headers = auth, data = msg))
+    print(requests.post(discord_url, headers = auth, data = msg))
     
 
     for player in master_dictionary:
@@ -295,10 +258,6 @@ def get_winner(game):
     }
     
     return winner_round
-
-
-
-
 
 
 def run_periodically(interval, function):
