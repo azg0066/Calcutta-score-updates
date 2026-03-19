@@ -1,0 +1,64 @@
+Akron
+Alabama
+Arizona
+Arkansas
+BYU
+California Baptist
+Clemson
+Duke
+Florida
+Furman
+Georgia
+Gonzaga
+Hawaii
+High Point
+Hofstra
+Houston
+Howard
+Idaho
+Illinois
+Iowa
+Iowa St.
+Kansas
+Kennesaw St.
+Kentucky
+LIU
+Louisville
+McNeese
+Miami (FL)
+Miami (OH)
+Michigan
+Michigan St.
+Missouri
+Nebraska
+North Carolina
+North Dakota St.
+Ohio St.
+Penn
+Prairie View
+Purdue
+Queens (NC)
+Saint Louis
+Saint Mary's (CA)
+Santa Clara
+Siena
+South Fla.
+St. John's (NY)
+TCU
+Tennessee
+Tennessee St.
+Texas
+Texas A&M
+Texas Tech
+Troy
+UCF
+UCLA
+UConn
+UNI
+Utah St.
+VCU
+Vanderbilt
+Villanova
+Virginia
+Wisconsin
+Wright St.

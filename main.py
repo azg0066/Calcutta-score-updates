@@ -3,75 +3,78 @@ import json
 import time 
 import traceback
 import datetime
+from datetime import date
+from dotenv import load_dotenv
+import os
 
 
-url1 = "http://localhost:3000/scoreboard/basketball-men/d1/2025/03/20"
-url2 = "http://localhost:3000/scoreboard/basketball-men/d1/2025/03/21"
-url3 = "http://localhost:3000/scoreboard/basketball-men/d1/2025/03/22"
-url4 = "http://localhost:3000/scoreboard/basketball-men/d1/2025/03/23"
-url5 = "http://localhost:3000/scoreboard/basketball-men/d1/2025/03/27"
-url6 = "http://localhost:3000/scoreboard/basketball-men/d1/2025/03/28"
-url7 = "http://localhost:3000/scoreboard/basketball-men/d1/2025/03/29"
-url8 = "http://localhost:3000/scoreboard/basketball-men/d1/2025/03/30"
-url9 = "http://localhost:3000/scoreboard/basketball-men/d1/2025/04/05"
-url10 = "http://localhost:3000/scoreboard/basketball-men/d1/2025/04/07"
+'''URLs from henrygd that pulls JSON scoreboard for a given day and returns as a '''
+
+url1 = "http://ncaa-api.henrygd.me/scoreboard/basketball-men/d1/2026/03/19"
+url2 = "http://ncaa-api.henrygd.me/scoreboard/basketball-men/d1/2026/03/20"
+url3 = "http://ncaa-api.henrygd.me/scoreboard/basketball-men/d1/2026/03/21"
+url4 = "http://ncaa-api.henrygd.me/scoreboard/basketball-men/d1/2026/03/22"
+url5 = "http://ncaa-api.henrygd.me/scoreboard/basketball-men/d1/2026/03/26"
+url6 = "http://ncaa-api.henrygd.me/scoreboard/basketball-men/d1/2026/03/27"
+url7 = "http://ncaa-api.henrygd.me/scoreboard/basketball-men/d1/2026/03/28"
+url8 = "http://ncaa-api.henrygd.me/scoreboard/basketball-men/d1/2026/03/29"
+url9 = "http://ncaa-api.henrygd.me/scoreboard/basketball-men/d1/2026/04/04"
+url10 = "http://ncaa-api.henrygd.me/scoreboard/basketball-men/d1/2026/04/06"
+
+RD2_START_DATE = date(2026,3,21)
+RD3_START_DATE = date(2026,3,26)
+RD4_START_DATE = date(2026,3,28)
+RD5_START_DATE = date(2026,4,4)
+RD6_START_DATE = date(2026,4,6)
+
+''' 
+private discord information is saved in my .env file. the below accesses the variables in that file using the dotenv and os libraries.
+'''
+channel_id = os.getenv('DISCORD_CHANNEL_ID')
+token = os.getenv('DISCORD_TOKEN')
 
 
+discord_url = f"https://discord.com/api/v9/channels/{channel_id}/messages"
+auth = {'authorization': f"Bot {token}"}
 
 
-discord_url = "https://discord.com/api/v9/channels/1353045468153905227/messages"
-auth = {'authorization': "Njk2MjEyOTI5MTE2MjQxOTIw.GoYHLq.52sqnZj1aybn2vA2o3QfmI2dYuNQwQjRdzKiP8"}
+TOTAL_POT = 900
+
+'''the below are cumulative win amounts; i.e., if a team wins 6 rounds, you just get RD6 winnings, not RD6 + RD5...'''
+
+RD1_WIN = TOTAL_POT*0.005
+RD2_WIN = TOTAL_POT*0.0175
+RD3_WIN = TOTAL_POT*0.0525
+RD4_WIN = TOTAL_POT*0.1025
+RD5_WIN = TOTAL_POT*0.14
+RD6_WIN = TOTAL_POT*0.205
+
+'''contestant team lists -- should find a way to make this able to pull in directly from a CSV list'''
+
+WIL_TEAMS = ['UCLA','South Florida', 'California Baptist', 'North Dakota St.', "Furman", "Siena", "Arizona", "Arkansas", "BYU", "Utah St.", "Missouri", "Michigan", "Kentucky", "Saint Louis", "Santa Clara", "Akron", "Hofstra", "Wright St.", "Tennessee St.", "Howard", "Florida", "Texas A&M", "VCU", "McNeese"]
+WES_TEAMS = ['Michigan St.', 'Kansas', 'Louisville', 'Ohio St.', 'UCF', 'Gonzaga', 'Wisconsin', 'Miami (FL)', 'Villanova', 'Texas', 'Alabama', 'Tennessee', 'Houston', 'Nebraska', 'North Carolina', "St. Mary's (CA)", 'Iowa']
+CHASE_TEAMS = ['Duke', 'UConn', "St. John's (NY)", 'TCU', 'UNI', 'Purdue', 'High Point', 'Hawaii', 'Kennesaw St.', 'Queens (NC)', 'LIU', 'Iowa St.', 'Virginia', 'Texas Tech', 'Georgia', 'Miami (OH)', 'Illinois', 'Vanderbilt', 'Clemson', 'Troy', 'Penn', 'Idaho', 'Prairie View']
 
 
-RD1_WIN = 3.065
-RD2_WIN = 7.663
-RD3_WIN = 21.455
-RD4_WIN = 30.65
-RD5_WIN = 22.988
-RD6_WIN = 39.845
+master_dictionary = {'Wil':{'total': 0}, "Wes":{'total':0}, "Chase": {'total':0}}
 
+'''
+- creates a dictionary entry for each team in a contestant's team list, with a list of 0s corresponding to round wins
+- thought about just using a single digit to indicate "latest round won", but the main thing is I want to be able to easily show a scoreboard with wins by round. TBD
+'''
+def setup():
+    for team in WIL_TEAMS:
+        master_dictionary['Wil'][team] = [0,0,0,0,0,0]
+    for team in WES_TEAMS:
+        master_dictionary['Wes'][team] = [0,0,0,0,0,0]
+    for team in CHASE_TEAMS:
+        master_dictionary['Chase'][team] = [0,0,0,0,0,0] 
 
-ABHI_TEAMS = ['Florida','Duke', 'VCU', 'Colorado St.', "Michigan St.", "Louisville", "Creighton", "New Mexico", "North Carolina", "UC San Diego", "Yale", "Lipscomb", "Bryant", "Alabama St.", "Tennessee", "Clemson"]
-CAROL_TEAMS = [ "Oregon", "Mississippi St.", "Liberty", "Florida", "Arkansas", "Grand Canyon", "UNC Wilmington", "Omaha", "Norfolk St.", "Iowa St.", "Michigan", "Ole Miss", "Houston", "Purdue", "Illinois", "UCLA", "Utah St.", "McNeese", "High Point", "Troy", "Wofford", "SIU Edwardsville"]
-WES_TEAMS = ["Gonzaga", 'Maryland',"Wisconsin", "BYU", "Saint Mary's (CA)", "Missouri", "Oklahoma", "Drake", "Auburn", "Georgia"]
-CHASE_TEAMS = ["Alabama", "Arizona", "Baylor", "Vanderbilt", "Akron", "Montana", "Robert Morris", "Mount St. Mary's", "St. John's (NY)", "Texas Tech", "Memphis", "Kansas", "UConn", "Texas A&M", "Marquette", "Kentucky", "Xavier"]
-
-
-master_dictionary = {'Abhi':{'total': 0}, "Carol":{'total':0}, "Wes":{'total':0}, "Chase": {'total':0}}
-
-
-def is_final(game):
-    if game['game']['finalMessage']=='FINAL' or game['game']['finalMessage'] == 'FINAL (OT)':
-        return True
-    else:
-        return False
-
-def get_winner(game):
-    round = game['game']['bracketRound']
-    if(round=="First Round"):
-        round = 1
-    elif(round=="Second Round"):
-        round = 2
-    elif(round=="Sweet 16"):
-        round = 3
-    elif(round=="Elite Eight"):
-        round = 4
-    elif(round=="Final Four"):
-        round = 5
-    elif(round=="Championship"):
-        round = 6
-
-
-    winner_round = {'round': round}
-    if (game['game']['away']['winner']):
-        winner = game['game']['away']['names']['short']
-    else:
-        winner = game['game']['home']['names']['short']
-
-    winner_round['winner'] = winner
-    return winner_round
-
-def search_assignments(winner_list):
+'''
+- takes each winner_round dictionary in the winner_list, searches through each player's list, and finds the player who owns the team. Then, updates that player's dictionary entry to reflect the dub.
+- would like to think of a better name.  
+'''
+def update_player_wins(winner_list):
     for winner_round in winner_list:
         round = winner_round['round']
         winner = winner_round['winner']
@@ -80,6 +83,10 @@ def search_assignments(winner_list):
                 if team == winner:
                     master_dictionary[player][team][round-1] =1
 
+
+'''
+- adds up winnings for each player and assigns the winnings to the "total" dictionary key. 
+'''
 def update_totals():
     for player in master_dictionary:
         for team in master_dictionary[player]:
@@ -87,49 +94,20 @@ def update_totals():
                 continue
                       
             if master_dictionary[player][team][5] == 1:
-                if team == 'Florida':
-                    master_dictionary[player]['total'] += RD6_WIN/2
-                else:
-                    master_dictionary[player]['total'] += RD6_WIN
+                master_dictionary[player]['total'] += RD6_WIN
             if master_dictionary[player][team][4] == 1:
-                if team == 'Florida':
-                    master_dictionary[player]['total'] += RD5_WIN/2
-                else:
-                    master_dictionary[player]['total'] += RD5_WIN
+                master_dictionary[player]['total'] += RD5_WIN
             if master_dictionary[player][team][3] == 1:
-                if team == 'Florida':
-                    master_dictionary[player]['total'] += RD4_WIN/2
-                else:
-                    master_dictionary[player]['total'] += RD4_WIN
+                master_dictionary[player]['total'] += RD4_WIN
             if master_dictionary[player][team][2] == 1:
-                if team == 'Florida':
-                    master_dictionary[player]['total'] += RD3_WIN/2
-                else:
-                    master_dictionary[player]['total'] += RD3_WIN
+                master_dictionary[player]['total'] += RD3_WIN
             if master_dictionary[player][team][1] == 1:
-                if team == 'Florida':
-                    master_dictionary[player]['total'] += RD2_WIN/2
-                else:
-                    master_dictionary[player]['total'] += RD2_WIN
+                master_dictionary[player]['total'] += RD2_WIN
             if master_dictionary[player][team][0] == 1:
-                if team == 'Florida':
-                    master_dictionary[player]['total'] += RD1_WIN/2
-                else:
-                    master_dictionary[player]['total'] += RD1_WIN
+                master_dictionary[player]['total'] += RD1_WIN
 
 
-                    
-def setup():
-    for team in ABHI_TEAMS:
-        master_dictionary['Abhi'][team] = [0,0,0,0,0,0]
-    for team in CAROL_TEAMS:
-        master_dictionary['Carol'][team] = [0,0,0,0,0,0]
-    for team in WES_TEAMS:
-        master_dictionary['Wes'][team] = [0,0,0,0,0,0]
-    for team in CHASE_TEAMS:
-        master_dictionary['Chase'][team] = [0,0,0,0,0,0]    
-
-
+''' NO IDEA WHAT THIS WAS FOR. To be deleted.'''
 def get_wins():
     rd1_wins = []
     rd2_wins = []
@@ -137,38 +115,28 @@ def get_wins():
     for player in master_dictionary:
         if master_dictionary[player] == "total":
             continue
-        
-
+    
 
 def main():
-    setup()
+    setup() #creates the dictionary for each player. Why do this instead of just making these global variables at the beginning?
     
-    data = json.loads(requests.get(url=url1).content)
-    data2 = json.loads(requests.get(url=url2).content)
-    data3 = json.loads(requests.get(url=url3).content)
-    data4 = json.loads(requests.get(url=url4).content)
-    data5 = json.loads(requests.get(url=url5).content)
-    data6 = json.loads(requests.get(url=url6).content)
-    data7 = json.loads(requests.get(url=url7).content)
-    data8 = json.loads(requests.get(url=url8).content)
-    data9 = json.loads(requests.get(url=url9).content)
-    data10 = json.loads(requests.get(url=url10).content)
-
-    games_day1 = data["games"]
-    games_day2 = data2["games"]
-    games_day3 = data3["games"]
-    games_day4 = data4["games"]
-    games_day5 = data5["games"]
-    games_day6 = data6["games"]
-    games_day7 = data7["games"]
-    games_day8 = data8["games"]
-    games_day9 = data9["games"]
-    games_day10 = data10["games"]
+    # pulls game data list from each day.
+    games_day1 = json.loads(requests.get(url=url1).content)["games"]
+    games_day2 = json.loads(requests.get(url=url2).content)["games"]
+    games_day3 = json.loads(requests.get(url=url3).content)["games"]
+    games_day4 = json.loads(requests.get(url=url4).content)["games"]
+    games_day5 = json.loads(requests.get(url=url5).content)["games"]
+    games_day6 = json.loads(requests.get(url=url6).content)["games"]
+    games_day7 = json.loads(requests.get(url=url7).content)["games"]
+    games_day8 = json.loads(requests.get(url=url8).content)["games"]
+    games_day9 = json.loads(requests.get(url=url9).content)["games"]
+    games_day10 = json.loads(requests.get(url=url10).content)["games"]
 
     winner_list = []
     
+    '''checks the game data and adds winner_round dictionary entries to the winner_list.'''
     for game in games_day1:
-        if game['game']['bracketRound'] == '':
+        if game['game']['bracketRound'] == '': #not sure why I put this in. 
             break
         if (is_final(game)):
             winner_list.append(get_winner(game))
@@ -179,7 +147,6 @@ def main():
             winner_list.append(get_winner(game))
     for game in games_day3:
         if (is_final(game)):
-            get_winner(game)['round'] = 2
             winner_list.append(get_winner(game))
     for game in games_day4:
         if game['game']['bracketRound'] == '':
@@ -190,7 +157,6 @@ def main():
         if game['game']['bracketRound'] == '':
             break
         if (is_final(game)):
-            get_winner(game)['round'] = 3
             winner_list.append(get_winner(game))
     for game in games_day6:
         if game['game']['bracketRound'] == '':
@@ -219,12 +185,12 @@ def main():
             winner_list.append(get_winner(game))
 
 
-    search_assignments(winner_list=winner_list)
+    update_player_wins(winner_list=winner_list)
     update_totals()
 
     scoreboard = 'LATEST SCOREBOARD as of ' + datetime.datetime.now().strftime("%H:%M") + " EST\n" 
     for player in master_dictionary:
-        scoreboard += (player + " total: $" + str(round(master_dictionary[player]['total'],2)))
+        scoreboard += (player + " total: $" + str(round(master_dictionary[player]['total'],3)))
         scoreboard += ("\n" + player + " Round 1 wins: \n" )
         
         rd1_wins = []
@@ -236,58 +202,104 @@ def main():
                     rd1_wins.append(game)
         scoreboard += str(rd1_wins) + "\n"
 
-        rd2_wins = []
-        for game in master_dictionary[player]:
-            if game == 'total':
-                continue
-            else:
-                if (master_dictionary[player][game][1] == 1):
-                    rd2_wins.append(game)
-        scoreboard += ("\n" + player + " Round 2 wins: " + "\n" + str(rd2_wins) + "\n") 
+        if(date.today() >= RD2_START_DATE):
+            rd2_wins = []
+            for game in master_dictionary[player]:
+                if game == 'total':
+                    continue
+                else:
+                    if (master_dictionary[player][game][1] == 1):
+                        rd2_wins.append(game)
+            scoreboard += ("\n" + player + " Round 2 wins: " + "\n" + str(rd2_wins) + "\n") 
 
-        rd3_wins = []
-        for game in master_dictionary[player]:
-            if game == 'total':
-                continue
-            else:
-                if (master_dictionary[player][game][2] == 1):
-                    rd3_wins.append(game)
-        scoreboard += ("\n" + player + " Sweet Sixteen wins: " + "\n" + str(rd3_wins) + "\n\n")
 
-        rd4_wins = []
-        for game in master_dictionary[player]:
-            if game == 'total':
-                continue
-            else:
-                if (master_dictionary[player][game][3] == 1):
-                    rd3_wins.append(game)
-        scoreboard += ("\n" + player + " Elite Eight wins: " + "\n" + str(rd4_wins) + "\n\n")
 
-        rd5_wins = []
-        for game in master_dictionary[player]:
-            if game == 'total':
-                continue
-            else:
-                if (master_dictionary[player][game][4] == 1):
-                    rd3_wins.append(game)
-        scoreboard += ("\n" + player + " Final Four wins: " + "\n" + str(rd5_wins) + "\n\n")
+        if(date.today() >= RD3_START_DATE):
+            rd3_wins = []
+            for game in master_dictionary[player]:
+                if game == 'total':
+                    continue
+                else:
+                    if (master_dictionary[player][game][2] == 1):
+                        rd3_wins.append(game)
+            scoreboard += ("\n" + player + " Sweet Sixteen wins: " + "\n" + str(rd3_wins) + "\n\n")
 
-        rd6_wins = []
-        for game in master_dictionary[player]:
-            if game == 'total':
-                continue
-            else:
-                if (master_dictionary[player][game][5] == 1):
-                    rd3_wins.append(game)
-        scoreboard += ("\n" + player + " Final Four wins: " + "\n" + str(rd6_wins) + "\n\n")
+        if(date.today() >= RD4_START_DATE):
+            rd4_wins = []
+            for game in master_dictionary[player]:
+                if game == 'total':
+                    continue
+                else:
+                    if (master_dictionary[player][game][3] == 1):
+                        rd3_wins.append(game)
+            scoreboard += ("\n" + player + " Elite Eight wins: " + "\n" + str(rd4_wins) + "\n\n")
+
+
+        if(date.today() >= RD5_START_DATE):
+            rd5_wins = []
+            for game in master_dictionary[player]:
+                if game == 'total':
+                    continue
+                else:
+                    if (master_dictionary[player][game][4] == 1):
+                        rd3_wins.append(game)
+            scoreboard += ("\n" + player + " Final Four wins: " + "\n" + str(rd5_wins) + "\n\n")
+
+
+        if(date.today() >= RD6_START_DATE):
+            rd6_wins = []
+            for game in master_dictionary[player]:
+                if game == 'total':
+                    continue
+                else:
+                    if (master_dictionary[player][game][5] == 1):
+                        rd3_wins.append(game)
+            scoreboard += ("\n" + player + " Final Four wins: " + "\n" + str(rd6_wins) + "\n\n")
 
     msg = {'content': scoreboard}
     print(scoreboard)
     
-    #requests.post(discord_url, headers = auth, data = msg)
+    #print(requests.post(discord_url, headers = auth, data = msg))
+    
 
     for player in master_dictionary:
         master_dictionary[player]['total']=0
+
+
+'''Checks if a game is complete.'''
+def is_final(game):
+    if game['game']['finalMessage']=='FINAL' or game['game']['finalMessage'] == 'FINAL (OT)':
+        return True
+    else:
+        return False
+
+
+'''Returns the winner and round of a completed game in the form of a dictionary.'''
+def get_winner(game):
+       
+    round = game['game']['bracketRound'] - 1 
+    #for some reason, the "bracketRound" appears to be one higher than the actual in the raw data. E.g., for round one it says 2
+    
+
+    '''below lines determines if the away or home team won and assigns the winner to a local variable called "winner"'''
+    if (game['game']['away']['winner']): 
+        winner = game['game']['away']['names']['short']
+    else:
+        winner = game['game']['home']['names']['short']
+
+
+    ''' creates final dictionary and assigns the round and winner.'''
+    winner_round = {
+        'round': round,
+        'winner': winner
+    }
+    
+    return winner_round
+
+
+
+
+
 
 def run_periodically(interval, function):
     next_time = time.time() + interval
