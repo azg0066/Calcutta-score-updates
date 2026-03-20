@@ -27,6 +27,14 @@ RD4_START_DATE = date(2026,3,28)
 RD5_START_DATE = date(2026,4,4)
 RD6_START_DATE = date(2026,4,6)
 
+
+WIL_INVESTMENT = 330
+WES_INVESTMENT = 265
+CHASE_INVESTMENT = 305
+
+
+
+
 ''' 
 private discord information is saved in my .env file. the below accesses the variables in that file using the dotenv and os libraries.
 '''
@@ -222,7 +230,7 @@ def main():
     msg = {'content': scoreboard}
     print(scoreboard)
     
-    print(requests.post(discord_url, headers = auth, data = msg))
+    #print(requests.post(discord_url, headers = auth, data = msg))
     
 
     for player in master_dictionary:
