@@ -216,25 +216,35 @@ def main():
         ('Championship', 5, date.today() >= RD6_START_DATE),
     ]
 
+    investments = {
+        'Wil': WIL_INVESTMENT,
+        'Wes': WES_INVESTMENT,
+        'Chase': CHASE_INVESTMENT,
+    }
+
     for player in master_dictionary:
-        scoreboard += f'\n**{player}**\n'
-        for round_name, idx, active in rounds:
+        investment = investments.get(player, 0)
+        scoreboard += f'\n**{player}** — Total invested: ${investment}\n'
+        for round_name, idx, active in rounds: 
             if not active:
                 break
-            wins = [g for g in master_dictionary[player]
-                    if g != 'total' and master_dictionary[player][g][idx] == 1]
+            wins = []
+            for g in master_dictionary[player]:
+                if g != 'total' and master_dictionary[player][g][idx] == 1:
+                    wins.append(g)
             if wins:
                 scoreboard += f'> {round_name}: {", ".join(wins)}\n'
         scoreboard += '\n'
-
+        
+    scoreboard += "remember, I may be a bot, but I still love being validated for my efforts. REEHEEHEEE"
     msg = {'content': scoreboard}
     print(scoreboard)
-    
-    #print(requests.post(discord_url, headers = auth, data = msg))
     
 
     for player in master_dictionary:
         master_dictionary[player]['total']=0
+
+    #print(requests.post(discord_url, headers = auth, data = msg))
 
 
 '''Checks if a game is complete.'''
