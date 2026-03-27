@@ -38,6 +38,7 @@ CHASE_INVESTMENT = 305
 ''' 
 private discord information is saved in my .env file. the below accesses the variables in that file using the dotenv and os libraries.
 '''
+load_dotenv()
 channel_id = os.getenv('DISCORD_CHANNEL_ID')
 token = os.getenv('DISCORD_TOKEN')
 
