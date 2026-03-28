@@ -201,9 +201,17 @@ def main():
     scoreboard += '=' * 35 + '\n\n'
 
     # Leaderboard summary
+    investments = {
+        'Wil': WIL_INVESTMENT,
+        'Wes': WES_INVESTMENT,
+        'Chase': CHASE_INVESTMENT,
+    }
+
     for player in master_dictionary:
         total = master_dictionary[player]['total']
-        scoreboard += f'**{player}**: ${total:.2f}\n'
+        investment = investments.get(player, 0)
+        roi = ((total - investment) / investment) * 100
+        scoreboard += f'**{player}**: ${total:.2f} (ROI: {roi:+.1f}%)\n'
 
     scoreboard += '\n' + '-' * 35 + '\n'
 
@@ -217,15 +225,11 @@ def main():
         ('Championship', 5, date.today() >= RD6_START_DATE),
     ]
 
-    investments = {
-        'Wil': WIL_INVESTMENT,
-        'Wes': WES_INVESTMENT,
-        'Chase': CHASE_INVESTMENT,
-    }
-
     for player in master_dictionary:
         investment = investments.get(player, 0)
-        scoreboard += f'\n**{player}** — Total invested: ${investment}\n'
+        total = master_dictionary[player]['total']
+        roi = ((total - investment) / investment) * 100
+        scoreboard += f'\n**{player}** — Total invested: ${investment} | ROI: {roi:+.1f}%\n'
         for round_name, idx, active in rounds: 
             if not active:
                 break
