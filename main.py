@@ -141,6 +141,20 @@ def main():
     games_day9 = json.loads(requests.get(url=url9).content)["games"]
     games_day10 = json.loads(requests.get(url=url10).content)["games"]
 
+    date_games = {
+        date(2026,3,19): games_day1,
+        date(2026,3,20): games_day2,
+        date(2026,3,21): games_day3,
+        date(2026,3,22): games_day4,
+        date(2026,3,26): games_day5,
+        date(2026,3,27): games_day6,
+        date(2026,3,28): games_day7,
+        date(2026,3,29): games_day8,
+        date(2026,4,4):  games_day9,
+        date(2026,4,6):  games_day10,
+    }
+    today_games = date_games.get(date.today(), [])
+
     winner_list = []
     
     '''checks the game data and adds winner_round dictionary entries to the winner_list.'''
@@ -261,6 +275,24 @@ def main():
                 scoreboard += f'> {round_name}: {", ".join(wins)}\n'
         scoreboard += '\n'
         
+    remaining = []
+    for game in today_games:
+        if not is_final(game):
+            away = game['game']['away']['names']['short']
+            home = game['game']['home']['names']['short']
+            away_owner = get_owner(away)
+            home_owner = get_owner(home)
+            away_str = f"{away} ({away_owner})" if away_owner else away
+            home_str = f"{home} ({home_owner})" if home_owner else home
+            remaining.append(f"{away_str} vs {home_str}")
+
+    if remaining:
+        scoreboard += '=' * 35 + '\n'
+        scoreboard += '**Remaining Games Today**\n\n'
+        for game_str in remaining:
+            scoreboard += f'> {game_str}\n'
+        scoreboard += '\n'
+
     scoreboard += "remember, I may be a bot, but I still love being validated for my efforts. REEHEEHEEE"
     msg = {'content': scoreboard}
     print(scoreboard)
@@ -270,6 +302,16 @@ def main():
         master_dictionary[player]['total']=0
 
     #print(requests.post(discord_url, headers = auth, data = msg))
+
+
+def get_owner(team):
+    if team in WIL_TEAMS:
+        return 'Wil'
+    if team in WES_TEAMS:
+        return 'Wes'
+    if team in CHASE_TEAMS:
+        return 'Chase'
+    return None
 
 
 '''Checks if a game is complete.'''
