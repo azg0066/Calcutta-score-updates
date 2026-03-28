@@ -293,7 +293,7 @@ def main():
             scoreboard += f'> {game_str}\n'
         scoreboard += '\n'
 
-    scoreboard += "remember, I may be a bot, but I still love being validated for my efforts. REEHEEHEEE"
+    scoreboard = scoreboard.rstrip('\n')
     msg = {'content': scoreboard}
     print(scoreboard)
     
