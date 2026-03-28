@@ -263,7 +263,7 @@ def is_final(game):
 '''Returns the winner and round of a completed game in the form of a dictionary.'''
 def get_winner(game):
        
-    round = game['game']['bracketRound'] - 1 
+    round = int(game['game']['bracketRound']) - 1
     #for some reason, the "bracketRound" appears to be one higher than the actual in the raw data. E.g., for round one it says 2
     
 
