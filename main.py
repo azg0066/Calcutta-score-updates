@@ -296,12 +296,11 @@ def main():
     scoreboard = scoreboard.rstrip('\n')
     msg = {'content': scoreboard}
     print(scoreboard)
+    print(requests.post(discord_url, headers = auth, data = msg))
     
 
     for player in master_dictionary:
         master_dictionary[player]['total']=0
-
-    #print(requests.post(discord_url, headers = auth, data = msg))
 
 
 def get_owner(team):
