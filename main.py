@@ -160,14 +160,14 @@ def main():
     '''checks the game data and adds winner_round dictionary entries to the winner_list.'''
     for game in games_day1:
         if not str(game['game']['bracketRound']).strip(): #not sure why I put this in. 
-            break
+            continue
         if (is_final(game)):
             result = get_winner(game)
             if result is not None:
                 winner_list.append(result)
     for game in games_day2:
         if not str(game['game']['bracketRound']).strip():
-            break
+            continue
         if (is_final(game)):
             result = get_winner(game)
             if result is not None:
@@ -179,49 +179,49 @@ def main():
                 winner_list.append(result)
     for game in games_day4:
         if not str(game['game']['bracketRound']).strip():
-            break
+            continue
         if (is_final(game)):
             result = get_winner(game)
             if result is not None:
                 winner_list.append(result)
     for game in games_day5:
         if not str(game['game']['bracketRound']).strip():
-            break
+            continue
         if (is_final(game)):
             result = get_winner(game)
             if result is not None:
                 winner_list.append(result)
     for game in games_day6:
         if not str(game['game']['bracketRound']).strip():
-            break
+            continue
         if (is_final(game)):
             result = get_winner(game)
             if result is not None:
                 winner_list.append(result)
     for game in games_day7:
         if not str(game['game']['bracketRound']).strip():
-            break
+            continue
         if (is_final(game)):
             result = get_winner(game)
             if result is not None:
                 winner_list.append(result)
     for game in games_day8:
         if not str(game['game']['bracketRound']).strip():
-            break
+            continue
         if (is_final(game)):
             result = get_winner(game)
             if result is not None:
                 winner_list.append(result)
     for game in games_day9:
         if not str(game['game']['bracketRound']).strip():
-            break
+            continue
         if (is_final(game)):
             result = get_winner(game)
             if result is not None:
                 winner_list.append(result)
     for game in games_day10:
         if not str(game['game']['bracketRound']).strip():
-            break
+            continue
         if (is_final(game)):
             result = get_winner(game)
             if result is not None:
