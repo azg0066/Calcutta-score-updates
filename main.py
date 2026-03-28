@@ -148,50 +148,70 @@ def main():
         if not str(game['game']['bracketRound']).strip(): #not sure why I put this in. 
             break
         if (is_final(game)):
-            winner_list.append(get_winner(game))
+            result = get_winner(game)
+            if result is not None:
+                winner_list.append(result)
     for game in games_day2:
         if not str(game['game']['bracketRound']).strip():
             break
         if (is_final(game)):
-            winner_list.append(get_winner(game))
+            result = get_winner(game)
+            if result is not None:
+                winner_list.append(result)
     for game in games_day3:
         if (is_final(game)):
-            winner_list.append(get_winner(game))
+            result = get_winner(game)
+            if result is not None:
+                winner_list.append(result)
     for game in games_day4:
         if not str(game['game']['bracketRound']).strip():
             break
         if (is_final(game)):
-            winner_list.append(get_winner(game))
+            result = get_winner(game)
+            if result is not None:
+                winner_list.append(result)
     for game in games_day5:
         if not str(game['game']['bracketRound']).strip():
             break
         if (is_final(game)):
-            winner_list.append(get_winner(game))
+            result = get_winner(game)
+            if result is not None:
+                winner_list.append(result)
     for game in games_day6:
         if not str(game['game']['bracketRound']).strip():
             break
         if (is_final(game)):
-            winner_list.append(get_winner(game))
+            result = get_winner(game)
+            if result is not None:
+                winner_list.append(result)
     for game in games_day7:
         if not str(game['game']['bracketRound']).strip():
             break
         if (is_final(game)):
-            winner_list.append(get_winner(game))
+            result = get_winner(game)
+            if result is not None:
+                winner_list.append(result)
     for game in games_day8:
         if not str(game['game']['bracketRound']).strip():
             break
         if (is_final(game)):
-            winner_list.append(get_winner(game))
+            result = get_winner(game)
+            if result is not None:
+                winner_list.append(result)
     for game in games_day9:
         if not str(game['game']['bracketRound']).strip():
             break
         if (is_final(game)):
-            winner_list.append(get_winner(game))
+            result = get_winner(game)
+            if result is not None:
+                winner_list.append(result)
     for game in games_day10:
         if not str(game['game']['bracketRound']).strip():
             break
         if (is_final(game)):
-            winner_list.append(get_winner(game))
+            result = get_winner(game)
+            if result is not None:
+                winner_list.append(result)
 
 
     update_player_wins(winner_list=winner_list)
@@ -263,7 +283,10 @@ def is_final(game):
 '''Returns the winner and round of a completed game in the form of a dictionary.'''
 def get_winner(game):
        
-    round = int(str(game['game']['bracketRound']).strip()) - 1
+    bracketRound = str(game['game']['bracketRound']).strip()
+    if not bracketRound.isdigit():
+        return None
+    round = int(bracketRound) - 1
     #for some reason, the "bracketRound" appears to be one higher than the actual in the raw data. E.g., for round one it says 2
     
 
