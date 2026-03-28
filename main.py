@@ -5,6 +5,7 @@ import traceback
 import datetime
 from datetime import date
 from dotenv import load_dotenv
+from zoneinfo import ZoneInfo
 import os
 
 
@@ -236,7 +237,7 @@ def main():
     update_player_wins(winner_list=winner_list)
     update_totals()
 
-    scoreboard = f'**🏀 SCOREBOARD** — {datetime.datetime.now().strftime("%H:%M")} EST\n'
+    scoreboard = f'**🏀 SCOREBOARD** — {datetime.datetime.now(ZoneInfo("America/New_York")).strftime("%H:%M")} ET\n'
     scoreboard += '=' * 35 + '\n\n'
 
     # Leaderboard summary
@@ -318,7 +319,7 @@ def main():
     for player in master_dictionary:
         master_dictionary[player]['total']=0
 
-    print(requests.post(discord_url, headers = auth, data = msg))
+    #print(requests.post(discord_url, headers = auth, data = msg))
 
 
 def get_owner(team):
