@@ -280,6 +280,14 @@ def main():
                         wins.append(f'{g} ({pct}%)')
                     else:
                         wins.append(g)
+            # Include partially owned teams from other players' rosters
+            for team, owners in TEAM_OWNERSHIP.items():
+                if player in owners and team not in master_dictionary[player]:
+                    for other_player in master_dictionary:
+                        if team in master_dictionary[other_player] and master_dictionary[other_player][team][idx] == 1:
+                            pct = int(owners[player] * 100)
+                            wins.append(f'{team} ({pct}%)')
+                            break
             if wins:
                 scoreboard += f'> {round_name}: {", ".join(wins)}\n'
         scoreboard += '\n'
