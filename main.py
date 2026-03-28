@@ -301,7 +301,7 @@ def main():
     for player in master_dictionary:
         master_dictionary[player]['total']=0
 
-    #print(requests.post(discord_url, headers = auth, data = msg))
+    print(requests.post(discord_url, headers = auth, data = msg))
 
 
 def get_owner(team):
