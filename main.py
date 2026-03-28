@@ -32,6 +32,16 @@ WIL_INVESTMENT = 330
 WES_INVESTMENT = 265
 CHASE_INVESTMENT = 305
 
+# Partial ownership from trades: {team: {player: fraction}}
+TEAM_OWNERSHIP = {
+    'Louisville':  {'Wes': 0.75, 'Chase': 0.25},
+    'TCU':         {'Chase': 0.50, 'Wes': 0.50},
+    'Texas':       {'Wes': 0.75, 'Chase': 0.25},
+    'High Point':  {'Chase': 0.50, 'Wes': 0.50},
+    'Arizona':     {'Wil': 0.95, 'Wes': 0.05},
+    'Kansas':      {'Wil': 0.33, 'Wes': 0.67},
+}
+
 
 
 
@@ -97,23 +107,18 @@ def update_player_wins(winner_list):
 - adds up winnings for each player and assigns the winnings to the "total" dictionary key. 
 '''
 def update_totals():
+    win_amounts = [RD1_WIN, RD2_WIN, RD3_WIN, RD4_WIN, RD5_WIN, RD6_WIN]
     for player in master_dictionary:
         for team in master_dictionary[player]:
-            if team == 'total': 
+            if team == 'total':
                 continue
-                      
-            if master_dictionary[player][team][5] == 1:
-                master_dictionary[player]['total'] += RD6_WIN
-            if master_dictionary[player][team][4] == 1:
-                master_dictionary[player]['total'] += RD5_WIN
-            if master_dictionary[player][team][3] == 1:
-                master_dictionary[player]['total'] += RD4_WIN
-            if master_dictionary[player][team][2] == 1:
-                master_dictionary[player]['total'] += RD3_WIN
-            if master_dictionary[player][team][1] == 1:
-                master_dictionary[player]['total'] += RD2_WIN
-            if master_dictionary[player][team][0] == 1:
-                master_dictionary[player]['total'] += RD1_WIN
+            for idx, amount in enumerate(win_amounts):
+                if master_dictionary[player][team][idx] == 1:
+                    if team in TEAM_OWNERSHIP:
+                        for owner, fraction in TEAM_OWNERSHIP[team].items():
+                            master_dictionary[owner]['total'] += amount * fraction
+                    else:
+                        master_dictionary[player]['total'] += amount
 
 
 ''' NO IDEA WHAT THIS WAS FOR. To be deleted.'''
@@ -159,15 +164,15 @@ def main():
     
     '''checks the game data and adds winner_round dictionary entries to the winner_list.'''
     for game in games_day1:
-        if not str(game['game']['bracketRound']).strip(): #not sure why I put this in. 
-            break
+        if not str(game['game']['bracketRound']).strip(): #not sure why I put this in.
+            continue
         if (is_final(game)):
             result = get_winner(game)
             if result is not None:
                 winner_list.append(result)
     for game in games_day2:
         if not str(game['game']['bracketRound']).strip():
-            break
+            continue
         if (is_final(game)):
             result = get_winner(game)
             if result is not None:
@@ -179,49 +184,49 @@ def main():
                 winner_list.append(result)
     for game in games_day4:
         if not str(game['game']['bracketRound']).strip():
-            break
+            continue
         if (is_final(game)):
             result = get_winner(game)
             if result is not None:
                 winner_list.append(result)
     for game in games_day5:
         if not str(game['game']['bracketRound']).strip():
-            break
+            continue
         if (is_final(game)):
             result = get_winner(game)
             if result is not None:
                 winner_list.append(result)
     for game in games_day6:
         if not str(game['game']['bracketRound']).strip():
-            break
+            continue
         if (is_final(game)):
             result = get_winner(game)
             if result is not None:
                 winner_list.append(result)
     for game in games_day7:
         if not str(game['game']['bracketRound']).strip():
-            break
+            continue
         if (is_final(game)):
             result = get_winner(game)
             if result is not None:
                 winner_list.append(result)
     for game in games_day8:
         if not str(game['game']['bracketRound']).strip():
-            break
+            continue
         if (is_final(game)):
             result = get_winner(game)
             if result is not None:
                 winner_list.append(result)
     for game in games_day9:
         if not str(game['game']['bracketRound']).strip():
-            break
+            continue
         if (is_final(game)):
             result = get_winner(game)
             if result is not None:
                 winner_list.append(result)
     for game in games_day10:
         if not str(game['game']['bracketRound']).strip():
-            break
+            continue
         if (is_final(game)):
             result = get_winner(game)
             if result is not None:
@@ -305,6 +310,9 @@ def main():
 
 
 def get_owner(team):
+    if team in TEAM_OWNERSHIP:
+        parts = ', '.join(f'{p} {int(f*100)}%' for p, f in TEAM_OWNERSHIP[team].items())
+        return parts
     if team in WIL_TEAMS:
         return 'Wil'
     if team in WES_TEAMS:
