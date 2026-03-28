@@ -32,19 +32,11 @@ WIL_INVESTMENT = 330
 WES_INVESTMENT = 265
 CHASE_INVESTMENT = 305
 
-# Partial ownership from trades: {team: {player: fraction}}
-TEAM_OWNERSHIP = {
-    'Louisville':  {'Wes': 0.75, 'Chase': 0.25},
-    'TCU':         {'Chase': 0.50, 'Wes': 0.50},
-    'Texas':       {'Wes': 0.75, 'Chase': 0.25},
-    'High Point':  {'Chase': 0.50, 'Wes': 0.50},
-    'Arizona':     {'Wil': 0.95, 'Wes': 0.05},
-    'Kansas':      {'Wil': 0.33, 'Wes': 0.67}
-}
+
+
 
 ''' 
-private discord information is saved in my .env file. the below accesses the variables in that file 
-using the dotenv and os libraries.
+private discord information is saved in my .env file. the below accesses the variables in that file using the dotenv and os libraries.
 '''
 load_dotenv()
 channel_id = os.getenv('DISCORD_CHANNEL_ID')
@@ -57,8 +49,7 @@ auth = {'authorization': f"Bot {token}"}
 
 TOTAL_POT = 900
 
-'''the below are cumulative win amounts; i.e., if a team wins 6 rounds, you just get RD6 winnings, 
-not RD6 + RD5...'''
+'''the below are cumulative win amounts; i.e., if a team wins 6 rounds, you just get RD6 winnings, not RD6 + RD5...'''
 
 RD1_WIN = TOTAL_POT*0.005
 RD2_WIN = TOTAL_POT*0.0175
@@ -69,16 +60,16 @@ RD6_WIN = TOTAL_POT*0.205
 
 '''contestant team lists -- should find a way to make this able to pull in directly from a CSV list'''
 
-WIL_TEAMS = ['UCLA','South Florida', 'California Baptist', 'North Dakota St.', "Furman", "Siena", "Arizona", "Arkansas", "BYU", "Missouri", "Michigan", "Kentucky", "Saint Louis", "Santa Clara", "Akron", "Hofstra", "Wright St.", "Tennessee St.", "Howard", "Florida", "Texas A&M", "VCU", "McNeese"]
-WES_TEAMS = ['Michigan St.', 'Kansas', 'Louisville', 'Ohio St.', 'UCF', 'Gonzaga', 'Wisconsin', 'Miami (FL)', 'Villanova', 'Texas', 'Alabama', 'Tennessee', 'Houston', 'Nebraska', 'North Carolina', "St. Mary's (CA)", 'Iowa', "Utah St."]
+WIL_TEAMS = ['UCLA','South Florida', 'California Baptist', 'North Dakota St.', "Furman", "Siena", "Arizona", "Arkansas", "BYU", "Utah St.", "Missouri", "Michigan", "Kentucky", "Saint Louis", "Santa Clara", "Akron", "Hofstra", "Wright St.", "Tennessee St.", "Howard", "Florida", "Texas A&M", "VCU", "McNeese"]
+WES_TEAMS = ['Michigan St.', 'Kansas', 'Louisville', 'Ohio St.', 'UCF', 'Gonzaga', 'Wisconsin', 'Miami (FL)', 'Villanova', 'Texas', 'Alabama', 'Tennessee', 'Houston', 'Nebraska', 'North Carolina', "St. Mary's (CA)", 'Iowa']
 CHASE_TEAMS = ['Duke', 'UConn', "St. John's (NY)", 'TCU', 'UNI', 'Purdue', 'High Point', 'Hawaii', 'Kennesaw St.', 'Queens (NC)', 'LIU', 'Iowa St.', 'Virginia', 'Texas Tech', 'Georgia', 'Miami (OH)', 'Illinois', 'Vanderbilt', 'Clemson', 'Troy', 'Penn', 'Idaho', 'Prairie View']
+
 
 master_dictionary = {'Wil':{'total': 0}, "Wes":{'total':0}, "Chase": {'total':0}}
 
 '''
 - creates a dictionary entry for each team in a contestant's team list, with a list of 0s corresponding to round wins
-- thought about just using a single digit to indicate "latest round won", but the main thing is I want to be able 
-  to easily show a scoreboard with wins by round. TBD
+- thought about just using a single digit to indicate "latest round won", but the main thing is I want to be able to easily show a scoreboard with wins by round. TBD
 '''
 def setup():
     for team in WIL_TEAMS:
@@ -89,8 +80,7 @@ def setup():
         master_dictionary['Chase'][team] = [0,0,0,0,0,0] 
 
 '''
-- takes each winner_round dictionary in the winner_list, searches through each player's list, and 
-  finds the player who owns the team. Then, updates that player's dictionary entry to reflect the dub.
+- takes each winner_round dictionary in the winner_list, searches through each player's list, and finds the player who owns the team. Then, updates that player's dictionary entry to reflect the dub.
 - would like to think of a better name.  
 '''
 def update_player_wins(winner_list):
@@ -107,28 +97,23 @@ def update_player_wins(winner_list):
 - adds up winnings for each player and assigns the winnings to the "total" dictionary key. 
 '''
 def update_totals():
-    win_values = [RD1_WIN, RD2_WIN, RD3_WIN, RD4_WIN, RD5_WIN, RD6_WIN]
-
-    # Credit original team owners (reduced fraction for traded teams)
     for player in master_dictionary:
         for team in master_dictionary[player]:
-            if team == 'total':
+            if team == 'total': 
                 continue
-            fraction = TEAM_OWNERSHIP.get(team, {}).get(player, 1.0)
-            for round_idx, win_value in enumerate(win_values):
-                if master_dictionary[player][team][round_idx] == 1:
-                    master_dictionary[player]['total'] += win_value * fraction
-
-    # Credit non-owning stakeholders for their traded portions
-    for team, ownership in TEAM_OWNERSHIP.items():
-        for recording_player in master_dictionary:
-            if team in master_dictionary[recording_player]:
-                for beneficiary, fraction in ownership.items():
-                    if beneficiary != recording_player:
-                        for round_idx, win_value in enumerate(win_values):
-                            if master_dictionary[recording_player][team][round_idx] == 1:
-                                master_dictionary[beneficiary]['total'] += win_value * fraction
-                break
+                      
+            if master_dictionary[player][team][5] == 1:
+                master_dictionary[player]['total'] += RD6_WIN
+            if master_dictionary[player][team][4] == 1:
+                master_dictionary[player]['total'] += RD5_WIN
+            if master_dictionary[player][team][3] == 1:
+                master_dictionary[player]['total'] += RD4_WIN
+            if master_dictionary[player][team][2] == 1:
+                master_dictionary[player]['total'] += RD3_WIN
+            if master_dictionary[player][team][1] == 1:
+                master_dictionary[player]['total'] += RD2_WIN
+            if master_dictionary[player][team][0] == 1:
+                master_dictionary[player]['total'] += RD1_WIN
 
 
 ''' NO IDEA WHAT THIS WAS FOR. To be deleted.'''
@@ -160,53 +145,51 @@ def main():
     
     '''checks the game data and adds winner_round dictionary entries to the winner_list.'''
     for game in games_day1:
-        if game['game']['bracketRound'] == '':
-            continue
+        if game['game']['bracketRound'] == '': #not sure why I put this in. 
+            break
         if (is_final(game)):
             winner_list.append(get_winner(game))
     for game in games_day2:
         if game['game']['bracketRound'] == '':
-            continue
+            break
         if (is_final(game)):
             winner_list.append(get_winner(game))
     for game in games_day3:
-        if game['game']['bracketRound'] == '':
-            continue
         if (is_final(game)):
             winner_list.append(get_winner(game))
     for game in games_day4:
         if game['game']['bracketRound'] == '':
-            continue
+            break
         if (is_final(game)):
             winner_list.append(get_winner(game))
     for game in games_day5:
         if game['game']['bracketRound'] == '':
-            continue
+            break
         if (is_final(game)):
             winner_list.append(get_winner(game))
     for game in games_day6:
         if game['game']['bracketRound'] == '':
-            continue
+            break
         if (is_final(game)):
             winner_list.append(get_winner(game))
     for game in games_day7:
         if game['game']['bracketRound'] == '':
-            continue
+            break
         if (is_final(game)):
             winner_list.append(get_winner(game))
     for game in games_day8:
         if game['game']['bracketRound'] == '':
-            continue
+            break
         if (is_final(game)):
             winner_list.append(get_winner(game))
     for game in games_day9:
         if game['game']['bracketRound'] == '':
-            continue
+            break
         if (is_final(game)):
             winner_list.append(get_winner(game))
     for game in games_day10:
         if game['game']['bracketRound'] == '':
-            continue
+            break
         if (is_final(game)):
             winner_list.append(get_winner(game))
 
@@ -218,10 +201,17 @@ def main():
     scoreboard += '=' * 35 + '\n\n'
 
     # Leaderboard summary
+    investments = {
+        'Wil': WIL_INVESTMENT,
+        'Wes': WES_INVESTMENT,
+        'Chase': CHASE_INVESTMENT,
+    }
+
     for player in master_dictionary:
         total = master_dictionary[player]['total']
-        scoreboard += f'**{player}**: ${total:.2f}\n'
-
+        investment = investments.get(player, 0)
+        roi = ((total - investment) / investment) * 100
+        scoreboard += f'**{player}**: ${total:.2f} (ROI: {roi:+.1f}%)\n'
 
     scoreboard += '\n' + '-' * 35 + '\n'
 
@@ -235,77 +225,31 @@ def main():
         ('Championship', 5, date.today() >= RD6_START_DATE),
     ]
 
-    investments = {
-        'Wil': WIL_INVESTMENT,
-        'Wes': WES_INVESTMENT,
-        'Chase': CHASE_INVESTMENT,
-    }
-
     for player in master_dictionary:
         investment = investments.get(player, 0)
-        scoreboard += f'\n**{player}** — Total invested: ${investment}\n'
-        for round_name, idx, active in rounds:
+        total = master_dictionary[player]['total']
+        roi = ((total - investment) / investment) * 100
+        scoreboard += f'\n**{player}** — Total invested: ${investment} | ROI: {roi:+.1f}%\n'
+        for round_name, idx, active in rounds: 
             if not active:
                 break
             wins = []
-            # Teams this player directly owns
             for g in master_dictionary[player]:
                 if g != 'total' and master_dictionary[player][g][idx] == 1:
-                    if g in TEAM_OWNERSHIP:
-                        pct = int(TEAM_OWNERSHIP[g].get(player, 1.0) * 100)
-                        wins.append(f'{g} ({pct}%)')
-                    else:
-                        wins.append(g)
-            # Traded-in teams from other players' dicts
-            for other_player in master_dictionary:
-                if other_player == player:
-                    continue
-                for g in master_dictionary[other_player]:
-                    if g != 'total' and g in TEAM_OWNERSHIP and player in TEAM_OWNERSHIP[g]:
-                        if master_dictionary[other_player][g][idx] == 1:
-                            pct = int(TEAM_OWNERSHIP[g][player] * 100)
-                            wins.append(f'{g} ({pct}%)')
+                    wins.append(g)
             if wins:
                 scoreboard += f'> {round_name}: {", ".join(wins)}\n'
         scoreboard += '\n'
         
-    # Today's remaining matchups
-    today = date.today()
-    date_to_games = {
-        date(2026, 3, 19): games_day1,
-        date(2026, 3, 20): games_day2,
-        date(2026, 3, 21): games_day3,
-        date(2026, 3, 22): games_day4,
-        date(2026, 3, 26): games_day5,
-        date(2026, 3, 27): games_day6,
-        date(2026, 3, 28): games_day7,
-        date(2026, 3, 29): games_day8,
-        date(2026, 4, 4):  games_day9,
-        date(2026, 4, 6):  games_day10,
-    }
-    todays_games = date_to_games.get(today, [])
-    remaining = [m for m in get_matchups(todays_games) if not m['finalstatus'] and m['home_owner'] and m['away_owner']]
-
-    if remaining:
-        scoreboard += '-' * 35 + '\n'
-        scoreboard += '**⏳ Remaining Games Today**\n\n'
-        for m in remaining:
-            away = m['away_team']
-            away_owner = f' ({m["away_owner"]})' if m['away_owner'] else ''
-            home = m['home_team']
-            home_owner = f' ({m["home_owner"]})' if m['home_owner'] else ''
-            scoreboard += f'> {away}{away_owner} vs {home}{home_owner}\n'
-        scoreboard += '\n'
-
+    scoreboard += "remember, I may be a bot, but I still love being validated for my efforts. REEHEEHEEE"
     msg = {'content': scoreboard}
     print(scoreboard)
-
     
 
     for player in master_dictionary:
         master_dictionary[player]['total']=0
 
-    print(requests.post(discord_url, headers = auth, data = msg))
+    #print(requests.post(discord_url, headers = auth, data = msg))
 
 
 '''Checks if a game is complete.'''
@@ -318,7 +262,8 @@ def is_final(game):
 
 '''Returns the winner and round of a completed game in the form of a dictionary.'''
 def get_winner(game):
-    round = int(game['game']['bracketRound']) - 1
+       
+    round = game['game']['bracketRound'] - 1 
     #for some reason, the "bracketRound" appears to be one higher than the actual in the raw data. E.g., for round one it says 2
     
 
@@ -338,50 +283,6 @@ def get_winner(game):
     return winner_round
 
 
-''' returns a list of matchup dictionaries, i.e. all the games to be played today.'''
-def get_matchups(game_list):
-    day_matchups = []
-    for game in game_list:
-        home_team = game['game']['home']['names']['short']
-        home_owner = get_team_owner(home_team)
-        away_team = game['game']['away']['names']['short']
-        away_owner = get_team_owner(away_team)
-        game_start_time = game['game']['startTime']
-        game_network = game['game']['network']
-        final_status = is_final(game)
-        
-        matchup = {
-            'home_team': home_team,
-            'home_owner': home_owner,
-            'away_team': away_team,
-            'away_owner': away_owner,
-            'game_start_time':game_start_time,
-            'game_network':game_network,
-            'finalstatus': final_status
-        }
-
-        day_matchups.append(matchup)
-
-
-    return day_matchups
-
-'''takes a string team name and matches it to the player (wil, wes, chase). returns player name as string'''
-def get_team_owner(team):
-    team_owner = ''
-
-    for x in WIL_TEAMS:
-        if x==team:
-            team_owner='Wil'
-    for x in WES_TEAMS:
-        if x ==team:
-            team_owner='Wes'
-    for x in CHASE_TEAMS:
-        if x==team:
-            team_owner='Chase'
-
-    return team_owner
-
-
 def run_periodically(interval, function):
     next_time = time.time() + interval
     while True: 
@@ -395,10 +296,3 @@ def run_periodically(interval, function):
 
 main()
 run_periodically(3600, main)
-
-
-
-
-
-
-
