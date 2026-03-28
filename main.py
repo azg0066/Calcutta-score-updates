@@ -275,7 +275,11 @@ def main():
             wins = []
             for g in master_dictionary[player]:
                 if g != 'total' and master_dictionary[player][g][idx] == 1:
-                    wins.append(g)
+                    if g in TEAM_OWNERSHIP and player in TEAM_OWNERSHIP[g]:
+                        pct = int(TEAM_OWNERSHIP[g][player] * 100)
+                        wins.append(f'{g} ({pct}%)')
+                    else:
+                        wins.append(g)
             if wins:
                 scoreboard += f'> {round_name}: {", ".join(wins)}\n'
         scoreboard += '\n'
