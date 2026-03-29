@@ -302,7 +302,8 @@ def main():
             home_owner = get_owner(home)
             away_str = f"{away} ({away_owner})" if away_owner else away
             home_str = f"{home} ({home_owner})" if home_owner else home
-            remaining.append(f"{away_str} vs {home_str}")
+            start_time = game['game'].get('startTime', 'TBD')
+            remaining.append(f"{away_str} vs {home_str} — {start_time}")
 
     if remaining:
         scoreboard += '=' * 35 + '\n'
