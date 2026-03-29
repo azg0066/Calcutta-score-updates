@@ -22,6 +22,8 @@ url8 = "http://ncaa-api.henrygd.me/scoreboard/basketball-men/d1/2026/03/29"
 url9 = "http://ncaa-api.henrygd.me/scoreboard/basketball-men/d1/2026/04/04"
 url10 = "http://ncaa-api.henrygd.me/scoreboard/basketball-men/d1/2026/04/06"
 
+SEND_TO_DISCORD = False  # Set to True to enable Discord posting
+
 RD2_START_DATE = date(2026,3,21)
 RD3_START_DATE = date(2026,3,26)
 RD4_START_DATE = date(2026,3,28)
@@ -320,7 +322,8 @@ def main():
     for player in master_dictionary:
         master_dictionary[player]['total']=0
 
-    print(requests.post(discord_url, headers = auth, data = msg))
+    if SEND_TO_DISCORD:
+        print(requests.post(discord_url, headers = auth, data = msg))
 
 
 def get_owner(team):
