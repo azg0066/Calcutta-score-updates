@@ -115,13 +115,19 @@ def update_totals():
         for team in master_dictionary[player]:
             if team == 'total':
                 continue
-            for idx, amount in enumerate(win_amounts):
+            # Only pay the highest round won (cumulative, not additive)
+            highest_round = -1
+            for idx in range(5, -1, -1):
                 if master_dictionary[player][team][idx] == 1:
-                    if team in TEAM_OWNERSHIP:
-                        for owner, fraction in TEAM_OWNERSHIP[team].items():
-                            master_dictionary[owner]['total'] += amount * fraction
-                    else:
-                        master_dictionary[player]['total'] += amount
+                    highest_round = idx
+                    break
+            if highest_round >= 0:
+                amount = win_amounts[highest_round]
+                if team in TEAM_OWNERSHIP:
+                    for owner, fraction in TEAM_OWNERSHIP[team].items():
+                        master_dictionary[owner]['total'] += amount * fraction
+                else:
+                    master_dictionary[player]['total'] += amount
 
 
 ''' NO IDEA WHAT THIS WAS FOR. To be deleted.'''
